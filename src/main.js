@@ -7,11 +7,10 @@ function uuid() {
   return Math.random().toString(36).slice(2);
 }
 
-// Wrap everything so nothing runs until DOM is ready
 window.addEventListener("DOMContentLoaded", () => {
   let state = createInitialSceneState();
 
-  // Seed with a default bench so there is something visible
+  // Seed with a default bench
   state.objects.push({
     id: uuid(),
     name: "Workbench 1",
@@ -26,7 +25,7 @@ window.addEventListener("DOMContentLoaded", () => {
     clearanceBack: 0
   });
 
-  let toolMode = "select"; // or "measure"
+  let toolMode = "select";
   let showServices = true;
   let showClearances = false;
 
@@ -34,6 +33,15 @@ window.addEventListener("DOMContentLoaded", () => {
   const canvas2d = document.getElementById("canvas2d");
   const view3dContainer = document.getElementById("view3d");
   const summaryArea = document.getElementById("summary-area");
+
+  if (!canvas2d) {
+    console.error("main.js: canvas2d not found");
+    return;
+  }
+  if (!summaryArea) {
+    console.error("main.js: summaryArea not found");
+    return;
+  }
 
   const btnUpdateRoom = document.getElementById("update-room");
   const btnAddObject = document.getElementById("add-object");
@@ -54,18 +62,19 @@ window.addEventListener("DOMContentLoaded", () => {
   const inputWid = document.getElementById("room-width");
   const inputHgt = document.getElementById("room-height");
 
-  // --- 3D view ---
-  const view3d = new View3D(view3dContainer);
+  // --- 2D view (always-on) ---
+  let view3d = null;
 
   function refresh3D() {
-    view3d.update(state);
+    if (view3d) {
+      view3d.update(state);
+    }
   }
 
-  // --- Summary ---
   function refreshSummary() {
-    const equip = state.objects.length;
-    const gpos = state.services.filter(s => s.type === "gpo").length;
-    const lights = state.services.filter(s => s.type === "light").length;
+    const equip = (state.objects || []).length;
+    const gpos = (state.services || []).filter(s => s.type === "gpo").length;
+    const lights = (state.services || []).filter(s => s.type === "light").length;
 
     summaryArea.innerHTML = `
       <table>
@@ -77,7 +86,6 @@ window.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
-  // --- 2D view ---
   const plan2d = new Plan2D({
     canvas: canvas2d,
     getState: () => state,
@@ -91,7 +99,18 @@ window.addEventListener("DOMContentLoaded", () => {
     showClearances: () => showClearances
   });
 
-  // Initial draw
+  // --- 3D view (optional, but should work if THREE is loaded) ---
+  if (window.THREE && view3dContainer) {
+    try {
+      view3d = new View3D(view3dContainer);
+    } catch (e) {
+      console.error("Failed to initialise View3D:", e);
+      view3d = null;
+    }
+  } else {
+    console.warn("THREE or view3dContainer missing; 3D view disabled.");
+  }
+
   refresh3D();
   refreshSummary();
 
@@ -199,18 +218,18 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const opening = {
       id: uuid(),
-      type,          // "roller_door"
-      wall: "S",     // south wall
-      offset: 500,   // 500mm from west corner
-      width: 2500,   // 2.5m wide
-      height: 2200   // 2.2m high
+      type,
+      wall: "S",
+      offset: 500,
+      width: 2500,
+      height: 2200
     };
 
     state = {
       ...state,
       openings: [...state.openings, opening]
     };
-    // 2D only for now; Plan2D will redraw via its animation loop
+    // Plan2D will pick this up on next render
   };
 
   // --- Tool buttons ---
@@ -239,7 +258,7 @@ window.addEventListener("DOMContentLoaded", () => {
     refresh3D();
   };
 
-  // --- Delete selected object/service ---
+  // --- Delete selected ---
   btnDelete.onclick = () => {
     if (!state.selectionId) return;
     const objects = state.objects.filter(o => o.id !== state.selectionId);
