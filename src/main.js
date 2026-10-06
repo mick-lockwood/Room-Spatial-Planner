@@ -1,7 +1,7 @@
 // main.ts
-import { Plan2D } from "./plan2d";
-import { View3D } from "./view3d";
-import type { SceneState, ObjectInstance, ServicePoint } from "./types";
+import { Plan2D } from "./plan2d.js";
+import { View3D } from "./view3d.js";
+import type { SceneState, ObjectInstance, ServicePoint } from "./types.js";
 
 function uuid() {
   return Math.random().toString(36).slice(2);
