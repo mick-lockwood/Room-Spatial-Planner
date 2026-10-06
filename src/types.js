@@ -1,16 +1,18 @@
-ctx.fillStyle = selected ? "#4caf50" : "#999";
-ctx.fillRect(-w / 2, -d / 2, w, d);
+// src/types.js
 
-// base outline
-ctx.strokeStyle = "#222";
-ctx.lineWidth = 1;
-ctx.strokeRect(-w / 2, -d / 2, w, d);
-
-// highlight outline if selected
-if (selected) {
-  ctx.strokeStyle = "#ff5722";
-  ctx.setLineDash([4, 3]);
-  ctx.lineWidth = 2;
-  ctx.strokeRect(-w / 2, -d / 2, w, d);
-  ctx.setLineDash([]);
+// Simple helper to create the initial scene state
+export function createInitialSceneState() {
+  return {
+    room: {
+      id: "room1",
+      name: "Test Garage",
+      length: 6000,
+      width: 4000,
+      height: 2700
+    },
+    openings: [],   // wall openings like roller doors
+    objects: [],    // benches, cabinets, machinery, etc.
+    services: [],   // GPOs, lights, etc.
+    selectionId: undefined
+  };
 }
