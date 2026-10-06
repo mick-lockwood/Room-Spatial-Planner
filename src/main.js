@@ -1,63 +1,52 @@
-// main.ts
+// src/main.js
 import { Plan2D } from "./plan2d.js";
 import { View3D } from "./view3d.js";
-import type { SceneState, ObjectInstance, ServicePoint } from "./types.js";
+import { createInitialSceneState } from "./types.js";
 
 function uuid() {
   return Math.random().toString(36).slice(2);
 }
 
-let state: SceneState = {
-  room: {
-    id: "room1",
-    name: "Test Garage",
-    length: 6000,
-    width: 4000,
-    height: 2700,
-  },
-  openings: [],
-  objects: [
-    {
-      id: uuid(),
-      name: "Workbench 1",
-      category: "bench",
-      position: { x: 1000, y: 1000 },
-      rotation: 0,
-      width: 1800,
-      depth: 750,
-      height: 900,
-      clearanceFront: 900,
-      clearanceSides: 300,
-      clearanceBack: 0,
-    } as ObjectInstance,
-  ],
-  services: [],
-  selectionId: undefined,
-};
+let state = createInitialSceneState();
 
-let toolMode: "select" | "measure" = "select";
+// Seed with a default bench
+state.objects.push({
+  id: uuid(),
+  name: "Workbench 1",
+  category: "bench",
+  position: { x: 1000, y: 1000 },
+  rotation: 0,
+  width: 1800,
+  depth: 750,
+  height: 900,
+  clearanceFront: 900,
+  clearanceSides: 300,
+  clearanceBack: 0
+});
+
+let toolMode = "select"; // or "measure"
 let showServices = true;
 let showClearances = false;
 
-const canvas2d = document.getElementById("canvas2d") as HTMLCanvasElement;
-const view3dContainer = document.getElementById("view3d") as HTMLDivElement;
-const summaryArea = document.getElementById("summary-area") as HTMLDivElement;
+const canvas2d = document.getElementById("canvas2d");
+const view3dContainer = document.getElementById("view3d");
+const summaryArea = document.getElementById("summary-area");
 
-// 2D
+// 2D view
 const plan2d = new Plan2D({
   canvas: canvas2d,
   getState: () => state,
-  setState: (s: SceneState) => {
+  setState: s => {
     state = s;
     refresh3D();
     refreshSummary();
   },
   getTool: () => toolMode,
   showServices: () => showServices,
-  showClearances: () => showClearances,
+  showClearances: () => showClearances
 });
 
-// 3D
+// 3D view
 const view3d = new View3D(view3dContainer);
 function refresh3D() {
   view3d.update(state);
@@ -81,99 +70,115 @@ function refreshSummary() {
 refreshSummary();
 
 // Room controls
-(document.getElementById("update-room") as HTMLButtonElement).onclick = () => {
-  const len = Number((document.getElementById("room-length") as HTMLInputElement).value) || 6000;
-  const wid = Number((document.getElementById("room-width") as HTMLInputElement).value) || 4000;
-  const hgt = Number((document.getElementById("room-height") as HTMLInputElement).value) || 2700;
+document.getElementById("update-room").onclick = () => {
+  const len = Number(document.getElementById("room-length").value) || 6000;
+  const wid = Number(document.getElementById("room-width").value) || 4000;
+  const hgt = Number(document.getElementById("room-height").value) || 2700;
 
   state = {
     ...state,
-    room: { ...state.room, length: len, width: wid, height: hgt },
+    room: { ...state.room, length: len, width: wid, height: hgt }
   };
   refresh3D();
 };
 
 // Add object
-(document.getElementById("add-object") as HTMLButtonElement).onclick = () => {
-  const typeSel = document.getElementById("add-object-type") as HTMLSelectElement;
-  const cat = typeSel.value as ObjectInstance["category"];
+document.getElementById("add-object").onclick = () => {
+  const typeSel = document.getElementById("add-object-type");
+  const cat = typeSel.value;
 
-  const base: Partial<ObjectInstance> =
-    cat === "bench"
-      ? { width: 1800, depth: 750, height: 900 }
-      : cat === "cabinet"
-      ? { width: 900, depth: 600, height: 2100 }
-      : cat === "machinery"
-      ? { width: 800, depth: 800, height: 1400, clearanceFront: 1000, clearanceSides: 500, clearanceBack: 300 }
-      : cat === "bike"
-      ? { width: 400, depth: 1800, height: 1200 }
-      : cat === "gym"
-      ? { width: 2000, depth: 2000, height: 2200, clearanceFront: 1500, clearanceSides: 800 }
-      : { width: 1000, depth: 1000, height: 1000 };
+  let base = {};
+  if (cat === "bench") {
+    base = { width: 1800, depth: 750, height: 900 };
+  } else if (cat === "cabinet") {
+    base = { width: 900, depth: 600, height: 2100 };
+  } else if (cat === "machinery") {
+    base = {
+      width: 800,
+      depth: 800,
+      height: 1400,
+      clearanceFront: 1000,
+      clearanceSides: 500,
+      clearanceBack: 300
+    };
+  } else if (cat === "bike") {
+    base = { width: 400, depth: 1800, height: 1200 };
+  } else if (cat === "gym") {
+    base = {
+      width: 2000,
+      depth: 2000,
+      height: 2200,
+      clearanceFront: 1500,
+      clearanceSides: 800
+    };
+  } else {
+    base = { width: 1000, depth: 1000, height: 1000 };
+  }
 
-  const obj: ObjectInstance = {
+  const obj = {
     id: uuid(),
     name: `${cat.toUpperCase()} ${state.objects.length + 1}`,
     category: cat,
     position: {
       x: state.room.length / 2,
-      y: state.room.width / 2,
+      y: state.room.width / 2
     },
     rotation: 0,
-    width: base.width!,
-    depth: base.depth!,
-    height: base.height!,
+    width: base.width,
+    depth: base.depth,
+    height: base.height,
     clearanceFront: base.clearanceFront,
     clearanceSides: base.clearanceSides,
-    clearanceBack: base.clearanceBack,
+    clearanceBack: base.clearanceBack
   };
 
   state = {
     ...state,
     objects: [...state.objects, obj],
-    selectionId: obj.id,
+    selectionId: obj.id
   };
   refresh3D();
   refreshSummary();
 };
 
 // Add service
-(document.getElementById("add-service") as HTMLButtonElement).onclick = () => {
-  const typeSel = document.getElementById("add-service-type") as HTMLSelectElement;
-  const type = typeSel.value as ServicePoint["type"];
-  const s: ServicePoint = {
+document.getElementById("add-service").onclick = () => {
+  const typeSel = document.getElementById("add-service-type");
+  const type = typeSel.value;
+
+  const s = {
     id: uuid(),
     type,
     position: {
       x: state.room.length / 2,
-      y: state.room.width / 2,
+      y: state.room.width / 2
     },
     elevation: type === "light" ? state.room.height - 200 : 1200,
     attributes:
       type === "gpo"
         ? { amps: 10, phase: "1P" }
-        : { fittingType: "batten" },
+        : { fittingType: "batten" }
   };
+
   state = {
     ...state,
     services: [...state.services, s],
-    selectionId: s.id,
+    selectionId: s.id
   };
   refresh3D();
   refreshSummary();
 };
 
 // Tool buttons
-(document.getElementById("tool-select") as HTMLButtonElement).onclick = () => {
+document.getElementById("tool-select").onclick = () => {
   toolMode = "select";
 };
-(document.getElementById("tool-measure") as HTMLButtonElement).onclick = () => {
+document.getElementById("tool-measure").onclick = () => {
   toolMode = "measure"; // not yet implemented
 };
-
-(document.getElementById("toggle-services") as HTMLButtonElement).onclick = () => {
+document.getElementById("toggle-services").onclick = () => {
   showServices = !showServices;
 };
-(document.getElementById("toggle-clearances") as HTMLButtonElement).onclick = () => {
+document.getElementById("toggle-clearances").onclick = () => {
   showClearances = !showClearances;
 };
