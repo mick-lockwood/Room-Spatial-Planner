@@ -182,3 +182,25 @@ document.getElementById("toggle-services").onclick = () => {
 document.getElementById("toggle-clearances").onclick = () => {
   showClearances = !showClearances;
 };
+// Rotate selected object 90°
+document.getElementById("btn-rotate").onclick = () => {
+  if (!state.selectionId) return;
+  const objects = state.objects.map(o =>
+    o.id === state.selectionId
+      ? { ...o, rotation: (o.rotation || 0) + Math.PI / 2 }
+      : o
+  );
+  state = { ...state, objects };
+  refresh3D();
+};
+
+// Delete selected object or service
+document.getElementById("btn-delete").onclick = () => {
+  if (!state.selectionId) return;
+  const objects = state.objects.filter(o => o.id !== state.selectionId);
+  const services = state.services.filter(s => s.id !== state.selectionId);
+  state = { ...state, objects, services, selectionId: undefined };
+  refresh3D();
+  refreshSummary();
+};
+
