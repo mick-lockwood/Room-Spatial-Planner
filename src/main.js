@@ -1,7 +1,7 @@
 // src/main.js
 import { Plan2D } from "./plan2d.js";
 import { View3D } from "./view3d.js";
-import { createInitialSceneState } from "./types.js?v=1";
+import { createInitialSceneState } from "./types.js";
 
 function uuid() {
   return Math.random().toString(36).slice(2);
@@ -49,9 +49,12 @@ const plan2d = new Plan2D({
 
 // --- 3D view ---
 const view3d = new View3D(view3dContainer);
+
 function refresh3D() {
   view3d.update(state);
 }
+
+// initial draw AFTER view3d exists
 refresh3D();
 
 // --- Summary ---
@@ -189,7 +192,7 @@ document.getElementById("add-opening").onclick = () => {
     ...state,
     openings: [...state.openings, opening]
   };
-  // affects 2D only for now
+  // 2D only for now
 };
 
 // --- Tool buttons ---
