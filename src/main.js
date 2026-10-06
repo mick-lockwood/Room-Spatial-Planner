@@ -9,7 +9,7 @@ function uuid() {
 
 let state = createInitialSceneState();
 
-// Seed with a default bench
+// Seed with a default bench so there is something visible
 state.objects.push({
   id: uuid(),
   name: "Workbench 1",
@@ -28,11 +28,12 @@ let toolMode = "select"; // or "measure"
 let showServices = true;
 let showClearances = false;
 
+// --- DOM references ---
 const canvas2d = document.getElementById("canvas2d");
 const view3dContainer = document.getElementById("view3d");
 const summaryArea = document.getElementById("summary-area");
 
-// 2D view
+// --- 2D view ---
 const plan2d = new Plan2D({
   canvas: canvas2d,
   getState: () => state,
@@ -46,13 +47,14 @@ const plan2d = new Plan2D({
   showClearances: () => showClearances
 });
 
-// 3D view
+// --- 3D view ---
 const view3d = new View3D(view3dContainer);
 function refresh3D() {
   view3d.update(state);
 }
 refresh3D();
 
+// --- Summary ---
 function refreshSummary() {
   const equip = state.objects.length;
   const gpos = state.services.filter(s => s.type === "gpo").length;
@@ -69,7 +71,7 @@ function refreshSummary() {
 }
 refreshSummary();
 
-// Room controls
+// --- Room controls ---
 document.getElementById("update-room").onclick = () => {
   const len = Number(document.getElementById("room-length").value) || 6000;
   const wid = Number(document.getElementById("room-width").value) || 4000;
@@ -82,7 +84,7 @@ document.getElementById("update-room").onclick = () => {
   refresh3D();
 };
 
-// Add object
+// --- Add object ---
 document.getElementById("add-object").onclick = () => {
   const typeSel = document.getElementById("add-object-type");
   const cat = typeSel.value;
@@ -141,7 +143,7 @@ document.getElementById("add-object").onclick = () => {
   refreshSummary();
 };
 
-// Add service
+// --- Add service ---
 document.getElementById("add-service").onclick = () => {
   const typeSel = document.getElementById("add-service-type");
   const type = typeSel.value;
@@ -169,7 +171,7 @@ document.getElementById("add-service").onclick = () => {
   refreshSummary();
 };
 
-// Add opening (roller door on south wall for now)
+// --- Add opening (roller door on south wall) ---
 document.getElementById("add-opening").onclick = () => {
   const sel = document.getElementById("add-opening-type");
   const type = sel.value; // only roller_door supported now
@@ -177,7 +179,7 @@ document.getElementById("add-opening").onclick = () => {
   const opening = {
     id: uuid(),
     type,          // "roller_door"
-    wall: "S",     // south wall for now
+    wall: "S",     // south wall
     offset: 500,   // 500mm from west corner
     width: 2500,   // 2.5m wide
     height: 2200   // 2.2m high
@@ -187,10 +189,10 @@ document.getElementById("add-opening").onclick = () => {
     ...state,
     openings: [...state.openings, opening]
   };
-  // Only affects 2D for now
+  // affects 2D only for now
 };
 
-// Tool buttons
+// --- Tool buttons ---
 document.getElementById("tool-select").onclick = () => {
   toolMode = "select";
 };
@@ -203,7 +205,8 @@ document.getElementById("toggle-services").onclick = () => {
 document.getElementById("toggle-clearances").onclick = () => {
   showClearances = !showClearances;
 };
-// Rotate selected object 90°
+
+// --- Rotate selected object ---
 document.getElementById("btn-rotate").onclick = () => {
   if (!state.selectionId) return;
   const objects = state.objects.map(o =>
@@ -215,7 +218,7 @@ document.getElementById("btn-rotate").onclick = () => {
   refresh3D();
 };
 
-// Delete selected object or service
+// --- Delete selected object/service ---
 document.getElementById("btn-delete").onclick = () => {
   if (!state.selectionId) return;
   const objects = state.objects.filter(o => o.id !== state.selectionId);
@@ -224,4 +227,3 @@ document.getElementById("btn-delete").onclick = () => {
   refresh3D();
   refreshSummary();
 };
-
