@@ -1,7 +1,7 @@
 // src/main.js
 import { Plan2D } from "./plan2d.js";
 import { View3D } from "./view3d.js";
-import { createInitialSceneState } from "./types.js";
+import { createInitialSceneState } from "./types.js?v=1";
 
 function uuid() {
   return Math.random().toString(36).slice(2);
