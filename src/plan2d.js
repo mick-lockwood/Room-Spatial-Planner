@@ -1,5 +1,5 @@
 // plan2d.ts
-import type { SceneState, ObjectInstance, ServicePoint } from "./types";
+import type { SceneState, ObjectInstance, ServicePoint } from "./types.js";
 
 export type ToolMode = "select" | "measure";
 
