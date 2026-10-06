@@ -169,6 +169,27 @@ document.getElementById("add-service").onclick = () => {
   refreshSummary();
 };
 
+// Add opening (roller door on south wall for now)
+document.getElementById("add-opening").onclick = () => {
+  const sel = document.getElementById("add-opening-type");
+  const type = sel.value; // only roller_door supported now
+
+  const opening = {
+    id: uuid(),
+    type,          // "roller_door"
+    wall: "S",     // south wall for now
+    offset: 500,   // 500mm from west corner
+    width: 2500,   // 2.5m wide
+    height: 2200   // 2.2m high
+  };
+
+  state = {
+    ...state,
+    openings: [...state.openings, opening]
+  };
+  // Only affects 2D for now
+};
+
 // Tool buttons
 document.getElementById("tool-select").onclick = () => {
   toolMode = "select";
