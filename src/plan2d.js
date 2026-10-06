@@ -52,7 +52,7 @@ export class Plan2D {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Room outline
+    // === Room outline ===
     ctx.save();
     ctx.strokeStyle = "#333";
     ctx.lineWidth = 2;
@@ -63,7 +63,7 @@ export class Plan2D {
     ctx.strokeRect(p1.sx, p2.sy, w, -h);
     ctx.restore();
 
-    // Openings (very simple: roller door on south wall)
+    // === Openings (e.g. roller doors) ===
     ctx.save();
     ctx.strokeStyle = "#00796b";
     ctx.lineWidth = 4;
@@ -75,18 +75,17 @@ export class Plan2D {
         const y = 0;
         const sp1 = this.worldToScreen(x1, y);
         const sp2 = this.worldToScreen(x2, y);
-    
-        // Draw a thick line segment on the wall to show the opening
+
         ctx.beginPath();
         ctx.moveTo(sp1.sx, sp1.sy);
         ctx.lineTo(sp2.sx, sp2.sy);
         ctx.stroke();
       }
-      // You can add logic for N/E/W later
+      // N/E/W can be added later
     });
     ctx.restore();
 
-    // Clearance zones
+    // === Clearance zones ===
     if (this.options.showClearances()) {
       ctx.save();
       ctx.fillStyle = "rgba(255,0,0,0.08)";
@@ -103,12 +102,12 @@ export class Plan2D {
       ctx.restore();
     }
 
-    // Objects
+    // === Objects ===
     state.objects.forEach(o =>
       this.drawObject(o, o.id === state.selectionId)
     );
 
-    // Services
+    // === Services (GPOs, lights) ===
     if (this.options.showServices()) {
       state.services.forEach(s =>
         this.drawService(s, s.id === state.selectionId)
@@ -126,14 +125,15 @@ export class Plan2D {
     ctx.translate(center.sx, center.sy);
     ctx.rotate(-o.rotation);
 
+    // fill
     ctx.fillStyle = selected ? "#4caf50" : "#999";
     ctx.fillRect(-w / 2, -d / 2, w, d);
-    
+
     // base outline
     ctx.strokeStyle = "#222";
     ctx.lineWidth = 1;
     ctx.strokeRect(-w / 2, -d / 2, w, d);
-    
+
     // highlight outline if selected
     if (selected) {
       ctx.strokeStyle = "#ff5722";
@@ -143,7 +143,7 @@ export class Plan2D {
       ctx.setLineDash([]);
     }
 
-
+    // label
     ctx.fillStyle = "#000";
     ctx.font = "10px sans-serif";
     ctx.textAlign = "center";
@@ -183,6 +183,7 @@ export class Plan2D {
     const cs = o.clearanceSides || 0;
     if (!cf && !cb && !cs) return null;
 
+    // axis-aligned assumption for now
     const x = o.position.x - o.width / 2 - cs;
     const y = o.position.y - o.depth / 2 - cb;
     const w = o.width + cs * 2;
