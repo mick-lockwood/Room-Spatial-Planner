@@ -1,6 +1,6 @@
 // view3d.ts
 import * as THREE from "three";
-import type { SceneState } from "./types";
+import type { SceneState } from "./types.js";
 
 export class View3D {
   private container: HTMLElement;
