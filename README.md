@@ -3,6 +3,8 @@
 
 ## Getting Started
 
+https://mick-lockwood.github.io/Room-Spatial-Planner/
+
 ```bash
 npm install
 npm run dev
