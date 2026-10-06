@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Room Spatial Planner</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="sidebar">
+        <div class="section-title">Room</div>
+        <div>
+          <label>Length (mm) <input id="room-length" type="number" value="6000" /></label><br />
+          <label>Width (mm) <input id="room-width" type="number" value="4000" /></label><br />
+          <label>Height (mm) <input id="room-height" type="number" value="2700" /></label>
+          <button id="update-room">Update</button>
+        </div>
+
+        <div class="section-title">Add Object</div>
+        <select id="add-object-type">
+          <option value="bench">Bench</option>
+          <option value="cabinet">Cabinet</option>
+          <option value="machinery">Machinery</option>
+          <option value="bike">Bike</option>
+          <option value="gym">Gym</option>
+        </select>
+        <button id="add-object">Add</button>
+
+        <div class="section-title">Add Service</div>
+        <select id="add-service-type">
+          <option value="gpo">GPO</option>
+          <option value="light">Light</option>
+        </select>
+        <button id="add-service">Add</button>
+
+        <div class="section-title">Summary</div>
+        <div id="summary-area"></div>
+      </div>
+
+      <div id="main">
+        <div id="toolbar">
+          <button id="tool-select">Select/Move</button>
+          <button id="tool-measure">Measure</button>
+          <button id="toggle-services">Toggle Services View</button>
+          <button id="toggle-clearances">Toggle Clearances</button>
+        </div>
+        <div id="views">
+          <canvas id="canvas2d"></canvas>
+          <div id="view3d"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
