@@ -63,6 +63,29 @@ export class Plan2D {
     ctx.strokeRect(p1.sx, p2.sy, w, -h);
     ctx.restore();
 
+    // Openings (very simple: roller door on south wall)
+    ctx.save();
+    ctx.strokeStyle = "#00796b";
+    ctx.lineWidth = 4;
+    state.openings.forEach(op => {
+      if (op.wall === "S") {
+        // South wall runs from (0,0) to (length,0)
+        const x1 = op.offset;
+        const x2 = op.offset + op.width;
+        const y = 0;
+        const sp1 = this.worldToScreen(x1, y);
+        const sp2 = this.worldToScreen(x2, y);
+    
+        // Draw a thick line segment on the wall to show the opening
+        ctx.beginPath();
+        ctx.moveTo(sp1.sx, sp1.sy);
+        ctx.lineTo(sp2.sx, sp2.sy);
+        ctx.stroke();
+      }
+      // You can add logic for N/E/W later
+    });
+    ctx.restore();
+
     // Clearance zones
     if (this.options.showClearances()) {
       ctx.save();
@@ -105,10 +128,21 @@ export class Plan2D {
 
     ctx.fillStyle = selected ? "#4caf50" : "#999";
     ctx.fillRect(-w / 2, -d / 2, w, d);
-
+    
+    // base outline
     ctx.strokeStyle = "#222";
     ctx.lineWidth = 1;
     ctx.strokeRect(-w / 2, -d / 2, w, d);
+    
+    // highlight outline if selected
+    if (selected) {
+      ctx.strokeStyle = "#ff5722";
+      ctx.setLineDash([4, 3]);
+      ctx.lineWidth = 2;
+      ctx.strokeRect(-w / 2, -d / 2, w, d);
+      ctx.setLineDash([]);
+    }
+
 
     ctx.fillStyle = "#000";
     ctx.font = "10px sans-serif";
